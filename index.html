@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Business Card Manager</title>
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <div id="app">
+      <!-- Auth Section -->
+      <section id="auth-section" class="view active">
+        <div class="auth-container">
+          <h2>Welcome to Business Card Manager</h2>
+          <form id="login-form" class="auth-form">
+            <div class="form-group">
+              <label for="login-email">Email</label>
+              <input type="email" id="login-email" required>
+            </div>
+            <div class="form-group">
+              <label for="login-password">Password</label>
+              <input type="password" id="login-password" required>
+            </div>
+            <button type="submit" class="primary-btn">Login</button>
+          </form>
+          <p class="auth-switch">
+            Don't have an account? <button id="show-register" class="link-btn">Register</button>
+          </p>
+        </div>
+      </section>
+
+      <!-- Main App Section -->
+      <section id="main-section" class="view">
+        <header>
+          <h1>Business Card Manager</h1>
+          <nav>
+            <button data-view="business" class="nav-btn active">Business Cards</button>
+            <button data-view="events" class="nav-btn">Events</button>
+            <button data-view="ratings" class="nav-btn">Ratings</button>
+            <button data-view="nfc" class="nav-btn">NFC Tools</button>
+            <button id="logout-btn" class="nav-btn">Logout</button>
+          </nav>
+        </header>
+
+        <main>
+          <!-- Business Cards View -->
+          <section id="business-view" class="content-view active">
+            <div class="controls">
+              <button id="new-business-card-btn" class="primary-btn">New Business Card</button>
+            </div>
+            <div id="business-cards-grid" class="cards-grid"></div>
+          </section>
+
+          <!-- Events View -->
+          <section id="events-view" class="content-view">
+            <div class="controls">
+              <button id="new-event-card-btn" class="primary-btn">New Event Card</button>
+            </div>
+            <div id="event-cards-grid" class="cards-grid"></div>
+          </section>
+
+          <!-- Ratings View -->
+          <section id="ratings-view" class="content-view">
+            <div class="controls">
+              <button id="new-rating-card-btn" class="primary-btn">New Rating Card</button>
+            </div>
+            <div id="rating-cards-grid" class="cards-grid"></div>
+          </section>
+
+          <!-- NFC Tools View -->
+          <section id="nfc-view" class="content-view">
+            <div id="nfc-status"></div>
+            <div id="nfc-controls"></div>
+          </section>
+        </main>
+      </section>
+    </div>
+    <script type="module" src="/main.js"></script>
+  </body>
+</html>
