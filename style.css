@@ -9,6 +9,7 @@
   --border: #e5e7eb;
   --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
   --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+  --gradient: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
 }
 
 * {
@@ -23,24 +24,77 @@ body {
   color: var(--text);
   line-height: 1.6;
   min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 #app {
   width: 100%;
   min-height: 100vh;
+}
+
+.logo-container {
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
 }
 
-/* Auth Styles */
+.logo {
+  width: 48px;
+  height: 48px;
+}
+
+.app-title {
+  font-size: 2.5rem;
+  font-weight: 800;
+  background: var(--gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-align: center;
+}
+
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.modal-content {
+  background: var(--surface);
+  padding: 2rem;
+  border-radius: 0.75rem;
+  width: 90%;
+  max-width: 500px;
+  position: relative;
+  box-shadow: var(--shadow-lg);
+}
+
+.close-modal {
+  position: absolute;
+  right: 1rem;
+  top: 1rem;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: var(--text-light);
+  transition: color 0.2s;
+}
+
+.close-modal:hover {
+  color: var(--text);
+}
+
 .auth-container {
   width: 100%;
   max-width: 450px;
-  margin: 2rem;
+  margin: 2rem auto;
   padding: 2.5rem;
   background: var(--surface);
   border-radius: 1rem;
@@ -60,6 +114,9 @@ body {
   color: var(--text-light);
   margin-bottom: 2rem;
   font-size: 0.95rem;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .creator-info {
@@ -86,16 +143,23 @@ body {
   color: var(--text);
 }
 
-.form-group input {
+.form-group input,
+.form-group textarea {
   width: 100%;
   padding: 0.75rem;
   border: 1px solid var(--border);
   border-radius: 0.5rem;
   font-size: 1rem;
-  transition: border-color 0.2s;
+  transition: all 0.2s;
 }
 
-.form-group input:focus {
+.form-group textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
   outline: none;
   border-color: var(--primary-color);
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
@@ -126,7 +190,6 @@ body {
   color: var(--primary-hover);
 }
 
-/* Main App Section */
 #main-section {
   display: none;
   width: 100%;
@@ -137,11 +200,13 @@ body {
   display: block;
 }
 
-/* Header Styles */
 header {
   background: var(--surface);
   padding: 1.25rem;
   box-shadow: var(--shadow);
+  position: sticky;
+  top: 0;
+  z-index: 100;
 }
 
 header h1 {
@@ -157,9 +222,10 @@ nav {
   gap: 0.75rem;
   flex-wrap: wrap;
   justify-content: center;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
-/* Button Styles */
 .nav-btn {
   padding: 0.625rem 1.25rem;
   border: none;
@@ -169,10 +235,18 @@ nav {
   color: var(--text);
   font-weight: 500;
   transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.nav-btn svg {
+  width: 1.25rem;
+  height: 1.25rem;
 }
 
 .nav-btn.active {
-  background: var(--primary-color);
+  background: var(--gradient);
   color: white;
 }
 
@@ -181,22 +255,26 @@ nav {
 }
 
 .primary-btn {
-  background: var(--primary-color);
+  background: var(--gradient);
   color: white;
   padding: 0.75rem 1.5rem;
   border: none;
   border-radius: 0.5rem;
   cursor: pointer;
   font-weight: 500;
-  transition: background-color 0.2s;
+  transition: all 0.2s;
   width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
 }
 
 .primary-btn:hover {
-  background: var(--primary-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow);
 }
 
-/* Layout Styles */
 main {
   padding: 2rem;
   max-width: 1200px;
@@ -206,21 +284,25 @@ main {
 .controls {
   margin-bottom: 2rem;
   text-align: center;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .cards-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 1.5rem;
 }
 
-/* Card Styles */
 .card {
   background: var(--surface);
   padding: 1.5rem;
   border-radius: 0.75rem;
   box-shadow: var(--shadow);
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
 }
 
 .card:hover {
@@ -240,8 +322,17 @@ main {
   margin-bottom: 0.5rem;
 }
 
-.delete-btn {
+.card-content {
+  flex: 1;
+}
+
+.card-actions {
   margin-top: 1rem;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.delete-btn {
   padding: 0.5rem 1rem;
   background: #ef4444;
   color: white;
@@ -249,20 +340,25 @@ main {
   border-radius: 0.375rem;
   cursor: pointer;
   font-size: 0.875rem;
-  transition: background-color 0.2s;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
 }
 
 .delete-btn:hover {
   background: #dc2626;
 }
 
-/* Status Messages */
 .success-message {
   background: #ecfdf5;
   color: #065f46;
   padding: 1rem;
   border-radius: 0.5rem;
   margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .info-message {
@@ -271,9 +367,11 @@ main {
   padding: 1rem;
   border-radius: 0.5rem;
   margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
-/* View Management */
 .view {
   display: none;
 }
@@ -290,8 +388,45 @@ main {
   display: block;
 }
 
-/* Responsive Design */
-@media (max-width: 640px) {
+.docs-section {
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background: var(--surface);
+  border-radius: 1rem;
+  box-shadow: var(--shadow);
+}
+
+.docs-section h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: var(--text);
+}
+
+.docs-section h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 1.5rem 0 0.75rem;
+  color: var(--text);
+}
+
+.docs-section p {
+  margin-bottom: 1rem;
+  color: var(--text-light);
+}
+
+.docs-section ul {
+  margin-bottom: 1rem;
+  padding-left: 1.5rem;
+}
+
+.docs-section li {
+  margin-bottom: 0.5rem;
+  color: var(--text-light);
+}
+
+@media (max-width: 768px) {
   .auth-container {
     margin: 1rem;
     padding: 1.5rem;
@@ -303,5 +438,40 @@ main {
 
   .cards-grid {
     grid-template-columns: 1fr;
+  }
+
+  nav {
+    gap: 0.5rem;
+  }
+
+  .nav-btn {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+  }
+
+  .app-title {
+    font-size: 2rem;
+  }
+
+  .modal-content {
+    padding: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .nav-btn span {
+    display: none;
+  }
+
+  .nav-btn svg {
+    margin: 0;
+  }
+
+  header h1 {
+    font-size: 1.5rem;
+  }
+
+  .app-title {
+    font-size: 1.75rem;
   }
 }

@@ -49,7 +49,12 @@ export class CardManager {
       const card = {
         type: 'business',
         userId: this.userId,
-        ...data,
+        name: data.name,
+        position: data.position,
+        company: data.company,
+        email: data.email,
+        phone: data.phone,
+        website: data.website || '',
         created: new Date().toISOString()
       };
 
@@ -68,7 +73,10 @@ export class CardManager {
       const card = {
         type: 'event',
         userId: this.userId,
-        ...data,
+        name: data.name,
+        date: data.date,
+        location: data.location,
+        description: data.description,
         created: new Date().toISOString()
       };
 
@@ -87,7 +95,8 @@ export class CardManager {
       const card = {
         type: 'rating',
         userId: this.userId,
-        ...data,
+        businessName: data.businessName,
+        placeId: data.placeId,
         created: new Date().toISOString(),
         ratingLink: this.generateGoogleRatingLink(data)
       };

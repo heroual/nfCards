@@ -7,15 +7,16 @@ let currentUser = null;
 let cardManager = null;
 let nfcManager = null;
 
-// Initialize DOM elements and event listeners after DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-  // Auth UI Management
   const loginForm = document.getElementById('login-form');
   const registerForm = document.getElementById('register-form');
   const showRegisterBtn = document.getElementById('show-register');
   const showLoginBtn = document.getElementById('show-login');
   const loginSwitch = document.getElementById('login-switch');
   const registerSwitch = document.getElementById('register-switch');
+  const newBusinessCardBtn = document.getElementById('new-business-card-btn');
+  const newEventCardBtn = document.getElementById('new-event-card-btn');
+  const newRatingCardBtn = document.getElementById('new-rating-card-btn');
 
   function showRegisterForm() {
     loginForm.style.display = 'none';
@@ -34,7 +35,6 @@ document.addEventListener('DOMContentLoaded', () => {
   if (showRegisterBtn) showRegisterBtn.addEventListener('click', showRegisterForm);
   if (showLoginBtn) showLoginBtn.addEventListener('click', showLoginForm);
 
-  // Login Form Handler
   if (loginForm) {
     loginForm.addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -53,7 +53,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Register Form Handler
   if (registerForm) {
     registerForm.addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -73,7 +72,24 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Navigation
+  if (newBusinessCardBtn) {
+    newBusinessCardBtn.addEventListener('click', () => {
+      showCardForm('business');
+    });
+  }
+
+  if (newEventCardBtn) {
+    newEventCardBtn.addEventListener('click', () => {
+      showCardForm('event');
+    });
+  }
+
+  if (newRatingCardBtn) {
+    newRatingCardBtn.addEventListener('click', () => {
+      showCardForm('rating');
+    });
+  }
+
   document.querySelectorAll('.nav-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       if (btn.id === 'logout-btn') {
@@ -87,41 +103,128 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     });
   });
-
-  // Initialize view
-  showView('auth-section');
 });
 
-// Initialize NFC
-async function initializeNFC() {
-  try {
-    nfcManager = new NFCManager();
-    const nfcStatus = document.getElementById('nfc-status');
-    const nfcControls = document.getElementById('nfc-controls');
+function showCardForm(type) {
+  const formHtml = createCardFormHtml(type);
+  const formContainer = document.createElement('div');
+  formContainer.className = 'modal';
+  formContainer.innerHTML = formHtml;
+  document.body.appendChild(formContainer);
+
+  const form = formContainer.querySelector('form');
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const formData = new FormData(form);
+    const data = Object.fromEntries(formData.entries());
     
-    const supported = await nfcManager.initialize();
-    
-    if (supported) {
-      nfcStatus.innerHTML = `
-        <div class="success-message">NFC is available and ready to use</div>
-      `;
-      nfcControls.innerHTML = `
-        <button id="write-nfc" class="primary-btn">Write to NFC Tag</button>
-      `;
-    } else {
-      nfcStatus.innerHTML = `
-        <div class="info-message">
-          NFC is not available on this device. You can still use other features.
+    try {
+      switch(type) {
+        case 'business':
+          await cardManager.addBusinessCard(data);
+          break;
+        case 'event':
+          await cardManager.addEventCard(data);
+          break;
+        case 'rating':
+          await cardManager.addRatingCard(data);
+          break;
+      }
+      renderAllCards();
+      formContainer.remove();
+    } catch (error) {
+      console.error('Error creating card:', error);
+    }
+  });
+
+  formContainer.querySelector('.close-modal').addEventListener('click', () => {
+    formContainer.remove();
+  });
+}
+
+function createCardFormHtml(type) {
+  switch(type) {
+    case 'business':
+      return `
+        <div class="modal-content">
+          <span class="close-modal">&times;</span>
+          <h2>New Business Card</h2>
+          <form>
+            <div class="form-group">
+              <label for="name">Full Name</label>
+              <input type="text" id="name" name="name" required>
+            </div>
+            <div class="form-group">
+              <label for="position">Position</label>
+              <input type="text" id="position" name="position" required>
+            </div>
+            <div class="form-group">
+              <label for="company">Company</label>
+              <input type="text" id="company" name="company" required>
+            </div>
+            <div class="form-group">
+              <label for="email">Email</label>
+              <input type="email" id="email" name="email" required>
+            </div>
+            <div class="form-group">
+              <label for="phone">Phone</label>
+              <input type="tel" id="phone" name="phone" required>
+            </div>
+            <div class="form-group">
+              <label for="website">Website (optional)</label>
+              <input type="url" id="website" name="website">
+            </div>
+            <button type="submit" class="primary-btn">Create Card</button>
+          </form>
         </div>
       `;
-      nfcControls.innerHTML = '';
-    }
-  } catch (error) {
-    console.log('NFC initialization error:', error.message);
+    case 'event':
+      return `
+        <div class="modal-content">
+          <span class="close-modal">&times;</span>
+          <h2>New Event Card</h2>
+          <form>
+            <div class="form-group">
+              <label for="name">Event Name</label>
+              <input type="text" id="name" name="name" required>
+            </div>
+            <div class="form-group">
+              <label for="date">Date</label>
+              <input type="datetime-local" id="date" name="date" required>
+            </div>
+            <div class="form-group">
+              <label for="location">Location</label>
+              <input type="text" id="location" name="location" required>
+            </div>
+            <div class="form-group">
+              <label for="description">Description</label>
+              <textarea id="description" name="description" required></textarea>
+            </div>
+            <button type="submit" class="primary-btn">Create Card</button>
+          </form>
+        </div>
+      `;
+    case 'rating':
+      return `
+        <div class="modal-content">
+          <span class="close-modal">&times;</span>
+          <h2>New Rating Card</h2>
+          <form>
+            <div class="form-group">
+              <label for="businessName">Business Name</label>
+              <input type="text" id="businessName" name="businessName" required>
+            </div>
+            <div class="form-group">
+              <label for="placeId">Google Place ID</label>
+              <input type="text" id="placeId" name="placeId" required>
+            </div>
+            <button type="submit" class="primary-btn">Create Card</button>
+          </form>
+        </div>
+      `;
   }
 }
 
-// Auth state observer
 auth.onAuthStateChanged(async (user) => {
   if (user) {
     currentUser = {
@@ -136,7 +239,6 @@ auth.onAuthStateChanged(async (user) => {
   }
 });
 
-// View Management
 function showView(viewId) {
   document.querySelectorAll('.view').forEach(view => {
     view.classList.toggle('active', view.id === viewId);
@@ -149,7 +251,6 @@ function showContentView(viewId) {
   });
 }
 
-// Initialize App after Login
 async function initializeApp() {
   showView('main-section');
   updateHeaderGreeting();
@@ -161,7 +262,7 @@ async function initializeApp() {
 
 function updateHeaderGreeting() {
   const header = document.querySelector('header h1');
-  if (header) {
+  if (header && currentUser) {
     const timeOfDay = getTimeOfDay();
     header.textContent = `${timeOfDay}, ${currentUser.fullName}`;
   }
@@ -174,7 +275,6 @@ function getTimeOfDay() {
   return 'Good evening';
 }
 
-// Card Rendering
 function renderAllCards() {
   renderBusinessCards();
   renderEventCards();
@@ -203,7 +303,7 @@ function renderEventCards() {
   grid.innerHTML = cardManager.cards.events.map(card => `
     <div class="card event-card">
       <h3>${card.name}</h3>
-      <p>${card.date}</p>
+      <p>${new Date(card.date).toLocaleString()}</p>
       <p>${card.location}</p>
       <p>${card.description}</p>
       <button onclick="deleteCard('${card.id}')" class="delete-btn">Delete</button>
@@ -223,7 +323,34 @@ function renderRatingCards() {
   `).join('');
 }
 
-// Logout
+async function initializeNFC() {
+  try {
+    nfcManager = new NFCManager();
+    const nfcStatus = document.getElementById('nfc-status');
+    const nfcControls = document.getElementById('nfc-controls');
+    
+    const supported = await nfcManager.initialize();
+    
+    if (supported) {
+      nfcStatus.innerHTML = `
+        <div class="success-message">NFC is available and ready to use</div>
+      `;
+      nfcControls.innerHTML = `
+        <button id="write-nfc" class="primary-btn">Write to NFC Tag</button>
+      `;
+    } else {
+      nfcStatus.innerHTML = `
+        <div class="info-message">
+          NFC is not available on this device. You can still use other features.
+        </div>
+      `;
+      nfcControls.innerHTML = '';
+    }
+  } catch (error) {
+    console.log('NFC initialization error:', error.message);
+  }
+}
+
 async function logout() {
   try {
     await signOut();
@@ -236,7 +363,6 @@ async function logout() {
   }
 }
 
-// Make deleteCard available globally
 window.deleteCard = async (cardId) => {
   try {
     await cardManager.deleteCard(cardId);
