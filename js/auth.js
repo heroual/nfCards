@@ -1,7 +1,8 @@
 import { 
   createUserWithEmailAndPassword, 
   signInWithEmailAndPassword,
-  signOut as firebaseSignOut
+  signOut as firebaseSignOut,
+  updateProfile
 } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
 import { auth, db } from './firebase.js';
@@ -11,6 +12,11 @@ export async function createAccount(email, password, fullName) {
   try {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
+
+    // Update user profile with full name
+    await updateProfile(user, {
+      displayName: fullName
+    });
 
     // Create user profile in Firestore
     await setDoc(doc(db, 'users', user.uid), {
@@ -36,7 +42,8 @@ export async function login(email, password) {
     
     return {
       id: user.uid,
-      email: user.email
+      email: user.email,
+      fullName: user.displayName
     };
   } catch (error) {
     throw new Error('Invalid credentials');

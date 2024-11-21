@@ -3,28 +3,61 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Business Card Manager</title>
+    <title>NFCards - Smart Business Card Management</title>
     <link rel="stylesheet" href="/style.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   </head>
   <body>
     <div id="app">
       <!-- Auth Section -->
       <section id="auth-section" class="view active">
         <div class="auth-container">
-          <h2>Welcome to Business Card Manager</h2>
+          <h2>Welcome to NFCards</h2>
+          <p class="app-description">
+            The next generation of business card management. Create, share, and manage your digital business cards with NFC technology.
+          </p>
+          
           <form id="login-form" class="auth-form">
             <div class="form-group">
               <label for="login-email">Email</label>
-              <input type="email" id="login-email" required>
+              <input type="email" id="login-email" required placeholder="Enter your email">
             </div>
             <div class="form-group">
               <label for="login-password">Password</label>
-              <input type="password" id="login-password" required>
+              <input type="password" id="login-password" required placeholder="Enter your password">
             </div>
             <button type="submit" class="primary-btn">Login</button>
+            <div id="login-error" class="error-message"></div>
           </form>
-          <p class="auth-switch">
+
+          <p class="auth-switch" id="login-switch">
             Don't have an account? <button id="show-register" class="link-btn">Register</button>
+          </p>
+
+          <form id="register-form" class="auth-form" style="display: none;">
+            <div class="form-group">
+              <label for="register-name">Full Name</label>
+              <input type="text" id="register-name" required placeholder="Enter your full name">
+            </div>
+            <div class="form-group">
+              <label for="register-email">Email</label>
+              <input type="email" id="register-email" required placeholder="Enter your email">
+            </div>
+            <div class="form-group">
+              <label for="register-password">Password</label>
+              <input type="password" id="register-password" required placeholder="Choose a password">
+            </div>
+            <button type="submit" class="primary-btn">Create Account</button>
+            <div id="register-error" class="error-message"></div>
+          </form>
+
+          <p class="auth-switch" id="register-switch" style="display: none;">
+            Already have an account? <button id="show-login" class="link-btn">Login</button>
+          </p>
+
+          <p class="creator-info">
+            Created by Elheroual Salah for Almostaqal Project<br>
+            <small>Version 1.0 - Built with Firebase, NFC Web API, and Modern Web Technologies</small>
           </p>
         </div>
       </section>
@@ -32,7 +65,7 @@
       <!-- Main App Section -->
       <section id="main-section" class="view">
         <header>
-          <h1>Business Card Manager</h1>
+          <h1>NFCards Manager</h1>
           <nav>
             <button data-view="business" class="nav-btn active">Business Cards</button>
             <button data-view="events" class="nav-btn">Events</button>
@@ -46,7 +79,7 @@
           <!-- Business Cards View -->
           <section id="business-view" class="content-view active">
             <div class="controls">
-              <button id="new-business-card-btn" class="primary-btn">New Business Card</button>
+              <button id="new-business-card-btn" class="primary-btn">Create New Business Card</button>
             </div>
             <div id="business-cards-grid" class="cards-grid"></div>
           </section>
@@ -54,7 +87,7 @@
           <!-- Events View -->
           <section id="events-view" class="content-view">
             <div class="controls">
-              <button id="new-event-card-btn" class="primary-btn">New Event Card</button>
+              <button id="new-event-card-btn" class="primary-btn">Create New Event Card</button>
             </div>
             <div id="event-cards-grid" class="cards-grid"></div>
           </section>
@@ -62,7 +95,7 @@
           <!-- Ratings View -->
           <section id="ratings-view" class="content-view">
             <div class="controls">
-              <button id="new-rating-card-btn" class="primary-btn">New Rating Card</button>
+              <button id="new-rating-card-btn" class="primary-btn">Create New Rating Card</button>
             </div>
             <div id="rating-cards-grid" class="cards-grid"></div>
           </section>

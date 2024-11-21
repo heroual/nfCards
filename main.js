@@ -7,88 +7,117 @@ let currentUser = null;
 let cardManager = null;
 let nfcManager = null;
 
-// Auth UI Management
-const loginForm = document.getElementById('login-form');
-const registerForm = document.getElementById('register-form');
-const showRegisterBtn = document.getElementById('show-register');
-const showLoginBtn = document.getElementById('show-login');
-const loginSwitch = document.getElementById('login-switch');
-const registerSwitch = document.getElementById('register-switch');
+// Initialize DOM elements and event listeners after DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+  // Auth UI Management
+  const loginForm = document.getElementById('login-form');
+  const registerForm = document.getElementById('register-form');
+  const showRegisterBtn = document.getElementById('show-register');
+  const showLoginBtn = document.getElementById('show-login');
+  const loginSwitch = document.getElementById('login-switch');
+  const registerSwitch = document.getElementById('register-switch');
 
-function showRegisterForm() {
-  loginForm.style.display = 'none';
-  registerForm.style.display = 'block';
-  loginSwitch.style.display = 'none';
-  registerSwitch.style.display = 'block';
-}
-
-function showLoginForm() {
-  registerForm.style.display = 'none';
-  loginForm.style.display = 'block';
-  registerSwitch.style.display = 'none';
-  loginSwitch.style.display = 'block';
-}
-
-showRegisterBtn.addEventListener('click', showRegisterForm);
-showLoginBtn.addEventListener('click', showLoginForm);
-
-// Login Form Handler
-loginForm.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const email = document.getElementById('login-email').value;
-  const password = document.getElementById('login-password').value;
-  const errorElement = document.getElementById('login-error');
-  
-  try {
-    currentUser = await login(email, password);
-    errorElement.textContent = '';
-    loginForm.reset();
-    initializeApp();
-  } catch (error) {
-    errorElement.textContent = error.message;
+  function showRegisterForm() {
+    loginForm.style.display = 'none';
+    registerForm.style.display = 'block';
+    loginSwitch.style.display = 'none';
+    registerSwitch.style.display = 'block';
   }
-});
 
-// Register Form Handler
-registerForm.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const fullName = document.getElementById('register-name').value;
-  const email = document.getElementById('register-email').value;
-  const password = document.getElementById('register-password').value;
-  const errorElement = document.getElementById('register-error');
-  
-  try {
-    currentUser = await createAccount(email, password, fullName);
-    errorElement.textContent = '';
-    registerForm.reset();
-    initializeApp();
-  } catch (error) {
-    errorElement.textContent = error.message;
+  function showLoginForm() {
+    registerForm.style.display = 'none';
+    loginForm.style.display = 'block';
+    registerSwitch.style.display = 'none';
+    loginSwitch.style.display = 'block';
   }
+
+  if (showRegisterBtn) showRegisterBtn.addEventListener('click', showRegisterForm);
+  if (showLoginBtn) showLoginBtn.addEventListener('click', showLoginForm);
+
+  // Login Form Handler
+  if (loginForm) {
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('login-email').value;
+      const password = document.getElementById('login-password').value;
+      const errorElement = document.getElementById('login-error');
+      
+      try {
+        currentUser = await login(email, password);
+        errorElement.textContent = '';
+        loginForm.reset();
+        initializeApp();
+      } catch (error) {
+        errorElement.textContent = error.message;
+      }
+    });
+  }
+
+  // Register Form Handler
+  if (registerForm) {
+    registerForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const fullName = document.getElementById('register-name').value;
+      const email = document.getElementById('register-email').value;
+      const password = document.getElementById('register-password').value;
+      const errorElement = document.getElementById('register-error');
+      
+      try {
+        currentUser = await createAccount(email, password, fullName);
+        errorElement.textContent = '';
+        registerForm.reset();
+        initializeApp();
+      } catch (error) {
+        errorElement.textContent = error.message;
+      }
+    });
+  }
+
+  // Navigation
+  document.querySelectorAll('.nav-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (btn.id === 'logout-btn') {
+        logout();
+        return;
+      }
+      const view = btn.dataset.view;
+      showContentView(`${view}-view`);
+      document.querySelectorAll('.nav-btn').forEach(b => {
+        b.classList.toggle('active', b === btn);
+      });
+    });
+  });
+
+  // Initialize view
+  showView('auth-section');
 });
 
 // Initialize NFC
 async function initializeNFC() {
-  nfcManager = new NFCManager();
-  const nfcStatus = document.getElementById('nfc-status');
-  const nfcControls = document.getElementById('nfc-controls');
-  
-  const supported = await nfcManager.initialize();
-  
-  if (supported) {
-    nfcStatus.innerHTML = `
-      <div class="success-message">NFC is available and ready to use</div>
-    `;
-    nfcControls.innerHTML = `
-      <button id="write-nfc" class="primary-btn">Write to NFC Tag</button>
-    `;
-  } else {
-    nfcStatus.innerHTML = `
-      <div class="info-message">
-        NFC is not available on this device. You can still use other features.
-      </div>
-    `;
-    nfcControls.innerHTML = '';
+  try {
+    nfcManager = new NFCManager();
+    const nfcStatus = document.getElementById('nfc-status');
+    const nfcControls = document.getElementById('nfc-controls');
+    
+    const supported = await nfcManager.initialize();
+    
+    if (supported) {
+      nfcStatus.innerHTML = `
+        <div class="success-message">NFC is available and ready to use</div>
+      `;
+      nfcControls.innerHTML = `
+        <button id="write-nfc" class="primary-btn">Write to NFC Tag</button>
+      `;
+    } else {
+      nfcStatus.innerHTML = `
+        <div class="info-message">
+          NFC is not available on this device. You can still use other features.
+        </div>
+      `;
+      nfcControls.innerHTML = '';
+    }
+  } catch (error) {
+    console.log('NFC initialization error:', error.message);
   }
 }
 
@@ -97,7 +126,8 @@ auth.onAuthStateChanged(async (user) => {
   if (user) {
     currentUser = {
       id: user.uid,
-      email: user.email
+      email: user.email,
+      fullName: user.displayName || 'User'
     };
     await initializeApp();
   } else {
@@ -122,10 +152,26 @@ function showContentView(viewId) {
 // Initialize App after Login
 async function initializeApp() {
   showView('main-section');
+  updateHeaderGreeting();
   cardManager = new CardManager(currentUser.id);
   await cardManager.loadCards();
   await initializeNFC();
   renderAllCards();
+}
+
+function updateHeaderGreeting() {
+  const header = document.querySelector('header h1');
+  if (header) {
+    const timeOfDay = getTimeOfDay();
+    header.textContent = `${timeOfDay}, ${currentUser.fullName}`;
+  }
+}
+
+function getTimeOfDay() {
+  const hour = new Date().getHours();
+  if (hour < 12) return 'Good morning';
+  if (hour < 18) return 'Good afternoon';
+  return 'Good evening';
 }
 
 // Card Rendering
@@ -137,6 +183,7 @@ function renderAllCards() {
 
 function renderBusinessCards() {
   const grid = document.getElementById('business-cards-grid');
+  if (!grid) return;
   grid.innerHTML = cardManager.cards.business.map(card => `
     <div class="card business-card">
       <h3>${card.name}</h3>
@@ -152,6 +199,7 @@ function renderBusinessCards() {
 
 function renderEventCards() {
   const grid = document.getElementById('event-cards-grid');
+  if (!grid) return;
   grid.innerHTML = cardManager.cards.events.map(card => `
     <div class="card event-card">
       <h3>${card.name}</h3>
@@ -165,6 +213,7 @@ function renderEventCards() {
 
 function renderRatingCards() {
   const grid = document.getElementById('rating-cards-grid');
+  if (!grid) return;
   grid.innerHTML = cardManager.cards.ratings.map(card => `
     <div class="card rating-card">
       <h3>${card.businessName}</h3>
@@ -173,18 +222,6 @@ function renderRatingCards() {
     </div>
   `).join('');
 }
-
-// Navigation
-document.querySelectorAll('.nav-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    if (btn.id === 'logout-btn') {
-      logout();
-      return;
-    }
-    const view = btn.dataset.view;
-    showContentView(`${view}-view`);
-  });
-});
 
 // Logout
 async function logout() {
@@ -198,9 +235,6 @@ async function logout() {
     alert('Error signing out');
   }
 }
-
-// Initialize
-showView('auth-section');
 
 // Make deleteCard available globally
 window.deleteCard = async (cardId) => {

@@ -1,11 +1,13 @@
 export class NFCManager {
   constructor() {
     this.supported = 'NDEFReader' in window;
+    this.reader = null;
   }
 
   async initialize() {
     if (!this.supported) {
-      throw new Error('NFC not supported on this device');
+      console.log('NFC not supported on this device');
+      return false;
     }
     
     try {
@@ -13,14 +15,14 @@ export class NFCManager {
       await this.reader.scan();
       return true;
     } catch (error) {
-      console.error('Error initializing NFC:', error);
+      console.log('Error initializing NFC:', error.message);
       return false;
     }
   }
 
   async writeUrl(url) {
-    if (!this.supported) {
-      throw new Error('NFC not supported');
+    if (!this.supported || !this.reader) {
+      return false;
     }
 
     try {
@@ -32,7 +34,7 @@ export class NFCManager {
       });
       return true;
     } catch (error) {
-      console.error('Error writing to NFC:', error);
+      console.log('Error writing to NFC:', error.message);
       return false;
     }
   }
