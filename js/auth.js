@@ -1,39 +1,52 @@
+import { 
+  createUserWithEmailAndPassword, 
+  signInWithEmailAndPassword,
+  signOut as firebaseSignOut
+} from 'firebase/auth';
+import { doc, setDoc } from 'firebase/firestore';
+import { auth, db } from './firebase.js';
 import { generateId } from './utils.js';
-import { saveToLocalStorage, loadFromLocalStorage } from './storage.js';
 
-const users = loadFromLocalStorage('users') || [];
+export async function createAccount(email, password, fullName) {
+  try {
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;
 
-export function createAccount(email, password, fullName) {
-  if (users.find(user => user.email === email)) {
-    throw new Error('Email already exists');
+    // Create user profile in Firestore
+    await setDoc(doc(db, 'users', user.uid), {
+      email,
+      fullName,
+      created: new Date().toISOString()
+    });
+
+    return {
+      id: user.uid,
+      email: user.email,
+      fullName
+    };
+  } catch (error) {
+    throw new Error(error.message);
   }
-
-  const user = {
-    id: generateId(),
-    email,
-    password: hashPassword(password),
-    fullName,
-    created: new Date().toISOString()
-  };
-
-  users.push(user);
-  saveToLocalStorage('users', users);
-  return { id: user.id, email: user.email, fullName: user.fullName };
 }
 
-export function login(email, password) {
-  const user = users.find(u => u.email === email);
-  if (!user || !verifyPassword(password, user.password)) {
+export async function login(email, password) {
+  try {
+    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;
+    
+    return {
+      id: user.uid,
+      email: user.email
+    };
+  } catch (error) {
     throw new Error('Invalid credentials');
   }
-  return { id: user.id, email: user.email, fullName: user.fullName };
 }
 
-function hashPassword(password) {
-  // In a real app, use bcrypt. For demo, we'll use a simple hash
-  return btoa(password);
-}
-
-function verifyPassword(password, hash) {
-  return btoa(password) === hash;
+export async function signOut() {
+  try {
+    await firebaseSignOut(auth);
+  } catch (error) {
+    throw new Error('Error signing out');
+  }
 }
